@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Supabase Orders Downloader</title>
+    <title>Daily Report Downloader</title>
+
     <style>
         * {
             margin: 0;
@@ -12,442 +13,239 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: rgb(243, 244, 245);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             padding: 20px;
         }
 
         .container {
-            background: white;
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
             border-radius: 20px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            padding: 40px;
-            max-width: 600px;
-            width: 100%;
-            text-align: center;
-        }
-
-        .logo {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
+            padding: 30px;
         }
 
         h1 {
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 2rem;
-            font-weight: 600;
+            text-align: center;
+            color: #2d3748;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            font-weight: 700;
         }
 
-        .subtitle {
-            color: #666;
+        .filters {
+            background: linear-gradient(145deg, #f8fafc, #e2e8f0);
+            padding: 25px;
+            border-radius: 15px;
             margin-bottom: 30px;
+            display: flex;
+            gap: 20px;
+            align-items: end;
+            flex-wrap: wrap;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 0.9rem;
+        }
+
+        .filter-group input {
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .filter-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(72, 187, 120, 0.3);
+        }
+
+        .info {
+            background: linear-gradient(145deg, #e6fffa, #b2f5ea);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border-left: 4px solid #38b2ac;
+        }
+
+        .info h3 {
+            color: #234e52;
+            margin-bottom: 10px;
             font-size: 1.1rem;
         }
 
-        .form-group {
-            margin-bottom: 20px;
-            text-align: left;
+        .info ul {
+            color: #2d3748;
+            margin-left: 20px;
         }
 
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: 500;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 12px 16px;
-            border: 2px solid #e1e5e9;
-            border-radius: 10px;
-            font-size: 1rem;
-            transition: border-color 0.3s ease;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: #4CAF50;
-            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
-        }
-
-        .date-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        .download-btn {
-            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            font-size: 1.2rem;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 20px rgba(76, 175, 80, 0.3);
-            margin: 20px 10px;
-            min-width: 200px;
-        }
-
-        .download-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 30px rgba(76, 175, 80, 0.4);
-        }
-
-        .download-btn:active {
-            transform: translateY(0);
-        }
-
-        .download-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        .progress-container {
-            margin-top: 30px;
-            display: none;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: #f0f0f0;
-            border-radius: 4px;
-            overflow: hidden;
-            margin-bottom: 10px;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #4CAF50, #45a049);
-            width: 0%;
-            transition: width 0.3s ease;
-        }
-
-        .progress-text {
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        .status {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 10px;
-            display: none;
-        }
-
-        .status.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .status.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        .status.info {
-            background: #d1ecf1;
-            color: #0c5460;
-            border: 1px solid #bee5eb;
-        }
-
-        .stats {
-            margin-top: 20px;
-            text-align: left;
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            display: none;
-        }
-
-        .stats h3 {
-            color: #333;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-
-        .stat-item {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            padding: 5px 0;
-            border-bottom: 1px solid #eee;
-        }
-
-        .stat-item:last-child {
-            border-bottom: none;
-        }
-
-        .stat-label {
-            font-weight: 500;
-            color: #555;
-        }
-
-        .stat-value {
-            color: #333;
-            font-weight: 600;
+        .info li {
+            margin-bottom: 5px;
         }
 
         .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #4CAF50;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-right: 10px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .info-box {
-            background: #e3f2fd;
-            border: 1px solid #bbdefb;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 20px;
-            text-align: left;
-        }
-
-        .info-box h4 {
-            color: #1976d2;
-            margin-bottom: 8px;
-        }
-
-        .info-box p {
-            color: #424242;
-            font-size: 0.9rem;
-            line-height: 1.4;
-        }
-
-        .password-container {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
             text-align: center;
-        }
-
-        .password-container h3 {
-            color: #856404;
-            margin-bottom: 15px;
-        }
-
-        .password-input {
-            width: 100%;
-            max-width: 300px;
-            padding: 12px 16px;
-            border: 2px solid #e1e5e9;
-            border-radius: 10px;
-            font-size: 1rem;
-            margin-bottom: 15px;
-            transition: border-color 0.3s ease;
-        }
-
-        .password-input:focus {
-            outline: none;
-            border-color: #4CAF50;
-            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
-        }
-
-        .login-btn {
-            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            font-size: 1rem;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
-        }
-
-        .login-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4);
-        }
-
-        .main-content {
+            padding: 20px;
+            color: #718096;
+            font-size: 1.1rem;
             display: none;
         }
 
-        .main-content.active {
+        .loading.show {
             display: block;
         }
 
-        .error-message {
-            color: #dc3545;
-            font-size: 0.9rem;
-            margin-top: 10px;
+        .error {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 1px solid #feb2b2;
             display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .success {
+            background: #f0fff4;
+            color: #22543d;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 1px solid #9ae6b4;
+            display: none;
+        }
+
+        .success.show {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="logo">📦</div>
-        <h1>Supabase Orders Downloader</h1>
-        <p class="subtitle">Download orders with Delhivery waybill tracking</p>
+        <h1>📊 Daily Report Downloader</h1>
         
-        <!-- Password Protection -->
-        <div id="passwordSection" class="password-container">
-            <h3>🔐 Access Required</h3>
-            <p>Please enter the access password to continue:</p>
-            <input type="password" id="passwordInput" class="password-input" placeholder="Enter password" autocomplete="off">
-            <br>
-            <button id="loginBtn" class="login-btn">🔓 Access Tool</button>
-            <div id="errorMessage" class="error-message">Invalid password. Please try again.</div>
+        <div class="info">
+            <h3>📋 Report Includes:</h3>
+            <ul>
+                <li>Date, Order Code, SKU (comma separated)</li>
+                <li>Total Quantity, Total Price, Time</li>
+                <li>Customer Name, Phone Number</li>
+                <li>Product Names, Order Status</li>
+            </ul>
         </div>
-
-        <!-- Main Content (Hidden until authenticated) -->
-        <div id="mainContent" class="main-content">
-        <form id="downloadForm">
-            <div class="date-row">
-                <div class="form-group">
-                    <label for="startDate">Start Date</label>
-                    <input type="date" id="startDate" name="startDate" required>
-                </div>
-                <div class="form-group">
-                    <label for="endDate">End Date</label>
-                    <input type="date" id="endDate" name="endDate" required>
-                </div>
+        
+        <div class="filters">
+            <div class="filter-group">
+                <label for="fromDate">From Date:</label>
+                <input type="date" id="fromDate" value="2025-10-19">
             </div>
             
-            <button type="submit" id="downloadBtn" class="download-btn">
-                📥 Download Orders CSV
-            </button>
-        </form>
-
-        <div id="progressContainer" class="progress-container">
-            <div class="progress-bar">
-                <div id="progressFill" class="progress-fill"></div>
+            <div class="filter-group">
+                <label for="toDate">To Date:</label>
+                <input type="date" id="toDate">
             </div>
-            <div id="progressText" class="progress-text">Preparing download...</div>
-        </div>
-
-        <div id="status" class="status"></div>
-
-        <div id="stats" class="stats">
-            <h3>📊 Download Summary</h3>
-            <div class="stat-item">
-                <span class="stat-label">Total Orders:</span>
-                <span id="totalOrders" class="stat-value">-</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label">Total Items:</span>
-                <span id="totalItems" class="stat-value">-</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label">Items with Waybills:</span>
-                <span id="itemsWithWaybills" class="stat-value">-</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label">Waybill Coverage:</span>
-                <span id="waybillCoverage" class="stat-value">-</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label">File Size:</span>
-                <span id="fileSize" class="stat-value">-</span>
+            
+            <div class="filter-group">
+                <button class="btn btn-primary" onclick="generateReport()">📊 Generate Report</button>
             </div>
         </div>
+
+        <div id="loading" class="loading">
+            <div>🔄 Generating report... Please wait</div>
         </div>
+
+        <div id="error" class="error"></div>
+        <div id="success" class="success"></div>
     </div>
 
     <script>
-        // Obfuscated password protection
-        (function() {
-            const _0x1a2b = function(s) { return atob(s); };
-            const _0x3c4d = function(s) { return s.split('').reverse().join(''); };
-            
-            const base64Encoded = 'YWRtaW4xMjM=';
-            const decoded = _0x1a2b(base64Encoded);
-            const reversed = _0x3c4d(decoded);
-            
-            window._securePass = reversed;
-            window._debugPass = 'admin123';
-        })();
+        // Set today's date as default
+        document.getElementById('toDate').value = new Date().toISOString().split('T')[0];
 
-        // Configuration
+        function showLoading() {
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('error').classList.remove('show');
+            document.getElementById('success').classList.remove('show');
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').classList.remove('show');
+        }
+
+        function showError(message) {
+            document.getElementById('error').textContent = message;
+            document.getElementById('error').classList.add('show');
+            document.getElementById('success').classList.remove('show');
+        }
+
+        function showSuccess(message) {
+            document.getElementById('success').textContent = message;
+            document.getElementById('success').classList.add('show');
+            document.getElementById('error').classList.remove('show');
+        }
+
+        // Supabase configuration
         const SUPABASE_URL = 'https://zlqrriylihuqqrnslfhs.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpscXJyaXlsaWh1cXFybnNsZmhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzIwOTY5NjksImV4cCI6MjA0NzY3Mjk2OX0.M60L5l9o61F_By8o_tEUA77L3VXgi1bRPrP6iz0_yfM';
-        const DELHIVERY_API_TOKEN = '474436c192c8df8f80973f506b84b2455e045e17';
-        const DELHIVERY_BASE_URL = 'https://track.delhivery.com/api/v1/packages/json';
-
-        // DOM elements
-        const passwordSection = document.getElementById('passwordSection');
-        const mainContent = document.getElementById('mainContent');
-        const passwordInput = document.getElementById('passwordInput');
-        const loginBtn = document.getElementById('loginBtn');
-        const errorMessage = document.getElementById('errorMessage');
-        const downloadForm = document.getElementById('downloadForm');
-        const downloadBtn = document.getElementById('downloadBtn');
-        const progressContainer = document.getElementById('progressContainer');
-        const progressFill = document.getElementById('progressFill');
-        const progressText = document.getElementById('progressText');
-        const status = document.getElementById('status');
-        const stats = document.getElementById('stats');
-
-        // Authentication state
-        let isAuthenticated = false;
-
-        // Authentication functions
-        function authenticateUser() {
-            const enteredPassword = passwordInput.value.trim();
-            
-            if (enteredPassword === window._securePass || enteredPassword === window._debugPass) {
-                isAuthenticated = true;
-                passwordSection.style.display = 'none';
-                mainContent.classList.add('active');
-                
-                passwordInput.value = '';
-                delete window._securePass;
-                delete window._debugPass;
-                
-                document.getElementById('startDate').focus();
-            } else {
-                showError();
-            }
-        }
-
-        function showError() {
-            errorMessage.style.display = 'block';
-            passwordInput.value = '';
-            passwordInput.focus();
-            
-            setTimeout(() => {
-                errorMessage.style.display = 'none';
-            }, 3000);
-        }
-
-        function handleKeyPress(event) {
-            if (event.key === 'Enter') {
-                authenticateUser();
-            }
-        }
-
-        // Set default dates (last 30 days)
-        const today = new Date();
-        const thirtyDaysAgo = new Date(today.getTime() - (30 * 24 * 60 * 60 * 1000));
-        
-        document.getElementById('endDate').value = today.toISOString().split('T')[0];
-        document.getElementById('startDate').value = thirtyDaysAgo.toISOString().split('T')[0];
 
         // Function to escape CSV values
         function escapeCSV(value) {
@@ -459,124 +257,24 @@
             return stringValue;
         }
 
-        // Function to update progress
-        function updateProgress(percent, text) {
-            progressFill.style.width = percent + '%';
-            progressText.textContent = text;
-        }
-
-        // Function to show status
-        function showStatus(message, type = 'info') {
-            status.textContent = message;
-            status.className = `status ${type}`;
-            status.style.display = 'block';
-        }
-
-        // Function to hide status
-        function hideStatus() {
-            status.style.display = 'none';
-        }
-
-        // Function to fetch waybill status from Delhivery API using multiple proxy attempts
-        async function getWaybillStatus(waybill) {
-            if (!waybill || waybill.trim() === '') {
-                return {
-                    status: 'No Waybill',
-                    statusLocation: '',
-                    statusDateTime: '',
-                    pickupLocation: '',
-                    invoiceAmount: '',
-                    consigneeName: '',
-                    consigneeCity: '',
-                    consigneeState: '',
-                    consigneePincode: '',
-                    error: 'No waybill number provided'
-                };
+        // Function to extract data from nested JSON
+        function extractJsonValue(jsonObj, path) {
+            if (!jsonObj || typeof jsonObj !== 'object') return '';
+            const keys = path.split('.');
+            let value = jsonObj;
+            for (const key of keys) {
+                value = value?.[key];
+                if (value === undefined || value === null) return '';
             }
-
-            const proxies = [
-                'https://cors-anywhere.herokuapp.com/',
-                'https://api.codetabs.com/v1/proxy?quest=',
-                'https://thingproxy.freeboard.io/fetch/',
-                'https://corsproxy.io/?'
-            ];
-            
-            const targetUrl = `${DELHIVERY_BASE_URL}?waybill=${waybill}&token=${DELHIVERY_API_TOKEN}`;
-            
-            for (let i = 0; i < proxies.length; i++) {
-                try {
-                    const proxyUrl = proxies[i];
-                    const url = proxyUrl + encodeURIComponent(targetUrl);
-                    
-                    const response = await fetch(url, {
-                        method: 'GET',
-                        headers: {
-                            'Accept': 'application/json',
-                        }
-                    });
-                    
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    
-                    const data = await response.json();
-                    
-                    const shipmentList = data?.ShipmentData || [];
-                    const shipment = shipmentList[0]?.Shipment || {};
-                    const status = shipment?.Status || {};
-                    
-                    return {
-                        status: status?.Status || 'Unknown',
-                        statusLocation: status?.StatusLocation || '',
-                        statusDateTime: status?.StatusDateTime || '',
-                        pickupLocation: shipment?.PickupLocation || '',
-                        invoiceAmount: shipment?.InvoiceAmount || '',
-                        consigneeName: shipment?.Consignee?.Name || '',
-                        consigneeCity: shipment?.Consignee?.City || '',
-                        consigneeState: shipment?.Consignee?.State || '',
-                        consigneePincode: shipment?.Consignee?.PinCode || '',
-                        error: null
-                    };
-                    
-                } catch (error) {
-                    if (i === proxies.length - 1) {
-                        return {
-                            status: 'CORS Error',
-                            statusLocation: '',
-                            statusDateTime: '',
-                            pickupLocation: '',
-                            invoiceAmount: '',
-                            consigneeName: '',
-                            consigneeCity: '',
-                            consigneeState: '',
-                            consigneePincode: '',
-                            error: 'All CORS proxies failed. Please use the Node.js script for waybill tracking.'
-                        };
-                    }
-                }
-            }
-        }
-
-        // Function to get waybill statuses for multiple waybills with rate limiting
-        async function getWaybillStatuses(waybills, delayMs = 200) {
-            const results = {};
-            
-            for (let i = 0; i < waybills.length; i++) {
-                const waybill = waybills[i];
-                const status = await getWaybillStatus(waybill);
-                results[waybill] = status;
-                
-                if (i < waybills.length - 1) {
-                    await new Promise(resolve => setTimeout(resolve, delayMs));
-                }
-            }
-            
-            return results;
+            return value;
         }
 
         // Function to fetch orders from Supabase
         async function fetchOrdersFromSupabase(startDate, endDate) {
-            const url = `${SUPABASE_URL}/rest/v1/orders?select=id,customer_id,total,status,shipping_address,meta_data,order_code,created_at,updated_at,shipping_phone,applied_coupon_id,discount_amount,final_total,payment_mode,payment_adjustment_amount,payment_adjusted_total,shipping_added,shipping_amount,customers(*),order_items(*,products(*))&created_at=gte.${startDate}&created_at=lte.${endDate}&order=created_at.desc`;
+            const fromDate = startDate + 'T00:00:00Z';
+            const toDate = endDate + 'T23:59:59Z';
+            
+            const url = `${SUPABASE_URL}/rest/v1/orders?select=id,order_code,status,total,final_total,created_at,updated_at,meta_data,customers(*),order_items(*,products(*))&created_at=gte.${fromDate}&created_at=lte.${toDate}&order=created_at.desc`;
             
             const response = await fetch(url, {
                 method: 'GET',
@@ -595,152 +293,75 @@
         }
 
         // Function to transform order data for CSV
-        function transformOrderData(orders, waybillStatuses) {
-            const excelData = [];
+        function transformOrderData(orders) {
+            const reportData = [];
             
             orders.forEach(order => {
-                const extractJsonValue = (jsonObj, path) => {
-                    if (!jsonObj || typeof jsonObj !== 'object') return '';
-                    const keys = path.split('.');
-                    let value = jsonObj;
-                    for (const key of keys) {
-                        value = value?.[key];
-                        if (value === undefined || value === null) return '';
-                    }
-                    return value;
-                };
-                
-                const metaData = order.meta_data || {};
-                const shiprocketData = extractJsonValue(metaData, 'shiprocket') || {};
-                const packages = extractJsonValue(shiprocketData, 'packages') || [];
                 const customer = order.customers || {};
-                const shippingAddr = order.shipping_address || {};
-                const shippingAddressText = [
-                    extractJsonValue(shippingAddr, 'street_line_1'),
-                    extractJsonValue(shippingAddr, 'city'),
-                    extractJsonValue(shippingAddr, 'state'),
-                    extractJsonValue(shippingAddr, 'postal_code')
-                ].filter(Boolean).join(', ');
-
-                if (packages.length > 0 && order.order_items && order.order_items.length > 0) {
-                    order.order_items.forEach((item, itemIndex) => {
+                const metaData = order.meta_data || {};
+                
+                // Extract customer name from metadata first, then customer table
+                const customerName = extractJsonValue(metaData, 'full_name') || 
+                                    extractJsonValue(metaData, 'customer_name') || 
+                                    extractJsonValue(metaData, 'name') ||
+                                    customer.full_name || '';
+                
+                // Extract phone number
+                const phoneNumber = customer.phone || 
+                                  extractJsonValue(metaData, 'phone_number') || 
+                                  extractJsonValue(metaData, 'phone') || '';
+                
+                // Collect product information
+                const productNames = [];
+                const productSkus = [];
+                let totalQuantity = 0;
+                
+                if (order.order_items && order.order_items.length > 0) {
+                    order.order_items.forEach(item => {
                         const product = item.products || {};
-                        const packageDetail = packages[itemIndex] || {};
-                        const waybill = packageDetail.waybill || '';
-                        const waybillStatus = waybill ? waybillStatuses[waybill] : null;
+                        const quantity = item.quantity || 0;
                         
-                        excelData.push({
-                            'Order Code': order.order_code || '',
-                            'Order Date': order.created_at ? new Date(order.created_at).toLocaleDateString('en-IN') : '',
-                            'Customer ID': order.customer_id,
-                            'Customer Name': customer.full_name || extractJsonValue(metaData, 'full_name') || '',
-                            'Customer Phone': customer.phone || order.shipping_phone || extractJsonValue(metaData, 'phone_number') || '',
-                            'Customer Email': extractJsonValue(metaData, 'email') || '',
-                            'Product Name': product.name || '',
-                            'Product SKU': product.sku || extractJsonValue(item.meta_data, 'sku') || '',
-                            'Item Quantity': item.quantity || 0,
-                            'Unit Price': parseFloat(item.unit_price) || 0,
-                            'Item Total': parseFloat(item.total) || 0,
-                            'Product Dimensions (L×B×H cm)': (() => {
-                                const length = product.length ? String(product.length).replace(/[A-Za-z]/g, '') : '';
-                                const breadth = product.breadth ? String(product.breadth).replace(/[A-Za-z]/g, '') : '';
-                                const height = product.height ? String(product.height).replace(/[A-Za-z]/g, '') : '';
-                                
-                                if (length && breadth && height) {
-                                    return `${length}×${breadth}×${height}`;
-                                }
-                                return '';
-                            })(),
-                            'Order Total': parseFloat(order.total) || 0,
-                            'Final Total': parseFloat(order.final_total) || 0,
-                            'Payment Adjustment': parseFloat(order.payment_adjustment_amount) || 0,
-                            'Payment Adjusted Total': parseFloat(order.payment_adjusted_total) || 0,
-                            'Payment Mode': order.payment_mode || '',
-                            'Payment Method (Meta)': extractJsonValue(metaData, 'payment_method') || '',
-                            'Shipping Address': shippingAddressText,
-                            'Shipping City': extractJsonValue(shippingAddr, 'city') || '',
-                            'Shipping State': extractJsonValue(shippingAddr, 'state') || '',
-                            'Shipping Postal Code': extractJsonValue(shippingAddr, 'postal_code') || '',
-                            'Shipping Phone': order.shipping_phone || '',
-                            'Waybill Number': waybill ? `'${waybill}` : '',
-                            'Package Payment Type': packageDetail.payment || '',
-                            'Consignee Name': waybillStatus?.consigneeName || '',
-                            'Consignee City': waybillStatus?.consigneeCity || '',
-                            'Consignee State': waybillStatus?.consigneeState || '',
-                            'Consignee Pincode': waybillStatus?.consigneePincode || '',
-                            'Waybill Status': waybillStatus?.status || 'No Waybill',
-                            'Status': waybillStatus?.status ? 
-                                waybillStatus?.status.toLowerCase().includes("delivered") ? "DELIVERED"
-                                : ["dispatched", "in transit", "manifested", "not picked", "pending"].some(s => waybillStatus?.status.toLowerCase().includes(s)) ? "Processing"
-                                : waybillStatus?.status.toLowerCase().includes("rto") ? "RTO"
-                                : waybillStatus?.status.toLowerCase().includes("cancelled") ? "CANCELLED"
-                                : "No Waybill"
-                                : "No Waybill",
-                            'Status Location': waybillStatus?.statusLocation || '',
-                            'Status DateTime': waybillStatus?.statusDateTime || '',
-                            'Pickup Location': waybillStatus?.pickupLocation || '',
-                            'Invoice Amount': waybillStatus?.invoiceAmount || '',
-                            'Status Error': waybillStatus?.error || '',
-                        });
+                        if (product.name) {
+                            productNames.push(product.name);
+                        }
+                        if (product.sku) {
+                            productSkus.push(product.sku);
+                        }
+                        
+                        totalQuantity += quantity;
                     });
-                } else {
-                    if (order.order_items && order.order_items.length > 0) {
-                        order.order_items.forEach(item => {
-                            const product = item.products || {};
-                            
-                            excelData.push({
-                                'Order Code': order.order_code || '',
-                                'Order Date': order.created_at ? new Date(order.created_at).toLocaleDateString('en-IN') : '',
-                                'Customer ID': order.customer_id,
-                                'Customer Name': customer.full_name || extractJsonValue(metaData, 'full_name') || '',
-                                'Customer Phone': customer.phone || order.shipping_phone || extractJsonValue(metaData, 'phone_number') || '',
-                                'Customer Email': extractJsonValue(metaData, 'email') || '',
-                                'Product Name': product.name || '',
-                                'Product SKU': product.sku || extractJsonValue(item.meta_data, 'sku') || '',
-                                'Item Quantity': item.quantity || 0,
-                                'Unit Price': parseFloat(item.unit_price) || 0,
-                                'Item Total': parseFloat(item.total) || 0,
-                                'Product Dimensions (L×B×H cm)': (() => {
-                                    const length = product.length ? String(product.length).replace(/[A-Za-z]/g, '') : '';
-                                    const breadth = product.breadth ? String(product.breadth).replace(/[A-Za-z]/g, '') : '';
-                                    const height = product.height ? String(product.height).replace(/[A-Za-z]/g, '') : '';
-                                    
-                                    if (length && breadth && height) {
-                                        return `${length}×${breadth}×${height}`;
-                                    }
-                                    return '';
-                                })(),
-                                'Order Total': parseFloat(order.total) || 0,
-                                'Final Total': parseFloat(order.final_total) || 0,
-                                'Payment Adjustment': parseFloat(order.payment_adjustment_amount) || 0,
-                                'Payment Adjusted Total': parseFloat(order.payment_adjusted_total) || 0,
-                                'Payment Mode': order.payment_mode || '',
-                                'Payment Method (Meta)': extractJsonValue(metaData, 'payment_method') || '',
-                                'Shipping Address': shippingAddressText,
-                                'Shipping City': extractJsonValue(shippingAddr, 'city') || '',
-                                'Shipping State': extractJsonValue(shippingAddr, 'state') || '',
-                                'Shipping Postal Code': extractJsonValue(shippingAddr, 'postal_code') || '',
-                                'Shipping Phone': order.shipping_phone || '',
-                                'Waybill Number': '',
-                                'Package Payment Type': '',
-                                'Consignee Name': '',
-                                'Consignee City': '',
-                                'Consignee State': '',
-                                'Consignee Pincode': '',
-                                'Waybill Status': 'No Waybill',
-                                'Status': 'No Waybill',
-                                'Status Location': '',
-                                'Status DateTime': '',
-                                'Pickup Location': '',
-                                'Invoice Amount': '',
-                                'Status Error': 'Order has no waybill number',
-                            });
-                        });
-                    }
                 }
+                
+                // Format time
+                const orderTime = order.created_at ? 
+                    new Date(order.created_at).toLocaleTimeString('en-IN', { 
+                        hour: '2-digit', 
+                        minute: '2-digit',
+                        second: '2-digit'
+                    }) : '';
+                
+                // Format date
+                const orderDate = order.created_at ? 
+                    new Date(order.created_at).toLocaleDateString('en-IN') : '';
+                
+                // Get original status
+                const orderStatus = order.status || 'Unknown';
+                
+                reportData.push({
+                    'Date': orderDate,
+                    'Order Code': order.order_code || '',
+                    'SKU': productSkus.join(', '),
+                    'Total Quantity': totalQuantity,
+                    'Total Price': parseFloat(order.final_total || order.total || 0),
+                    'Time': orderTime,
+                    'Name': customerName,
+                    'Phone Number': phoneNumber,
+                    'Product Names': productNames.join(', '),
+                    'Status': orderStatus
+                });
             });
             
-            return excelData;
+            return reportData;
         }
 
         // Function to export data to CSV
@@ -768,107 +389,48 @@
             document.body.removeChild(link);
         }
 
-        // Main download function
-        async function downloadOrders(event) {
-            event.preventDefault();
-            
-            if (!isAuthenticated) {
-                showStatus('❌ Please authenticate first', 'error');
+        async function generateReport() {
+            const fromDate = document.getElementById('fromDate').value;
+            const toDate = document.getElementById('toDate').value;
+
+            if (!fromDate || !toDate) {
+                showError('Please select both start and end dates');
                 return;
             }
-            
+
+            if (new Date(fromDate) > new Date(toDate)) {
+                showError('Start date cannot be after end date');
+                return;
+            }
+
+            showLoading();
+
             try {
-                const startDate = document.getElementById('startDate').value;
-                const endDate = document.getElementById('endDate').value;
-                
-                if (!startDate || !endDate) {
-                    showStatus('Please select both start and end dates', 'error');
-                    return;
-                }
-                
-                downloadBtn.disabled = true;
-                downloadBtn.innerHTML = '<span class="loading"></span>Downloading...';
-                progressContainer.style.display = 'block';
-                hideStatus();
-                stats.style.display = 'none';
-                
-                updateProgress(10, 'Fetching orders from Supabase...');
-                
-                const orders = await fetchOrdersFromSupabase(startDate, endDate);
+                // Fetch orders from Supabase
+                const orders = await fetchOrdersFromSupabase(fromDate, toDate);
                 
                 if (orders.length === 0) {
                     throw new Error('No orders found for the selected date range!');
                 }
                 
-                updateProgress(30, `Found ${orders.length} orders. Collecting waybills...`);
+                // Transform data
+                const reportData = transformOrderData(orders);
                 
-                const allWaybills = new Set();
-                orders.forEach(order => {
-                    const metaData = order.meta_data || {};
-                    const shiprocketData = metaData.shiprocket || {};
-                    const packages = shiprocketData.packages || [];
-                    
-                    packages.forEach(packageDetail => {
-                        if (packageDetail.waybill && packageDetail.waybill.trim() !== '') {
-                            allWaybills.add(packageDetail.waybill);
-                        }
-                    });
-                });
+                // Create filename
+                const filename = `daily_report_${fromDate}_to_${toDate}.csv`;
                 
-                updateProgress(40, `Found ${allWaybills.size} unique waybills. Fetching statuses...`);
+                // Export to CSV
+                exportToCSV(reportData, filename);
                 
-                let waybillStatuses = {};
-                if (allWaybills.size > 0) {
-                    try {
-                        waybillStatuses = await getWaybillStatuses(Array.from(allWaybills));
-                    } catch (error) {
-                        console.warn('Waybill status fetching failed, continuing without status data:', error);
-                        showStatus('⚠️ Waybill status fetching failed due to CORS restrictions. Downloading orders without waybill status data.', 'info');
-                    }
-                }
-                
-                updateProgress(80, 'Processing order data...');
-                
-                const transformedData = transformOrderData(orders, waybillStatuses);
-                
-                const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
-                const filename = `supabase_orders_${startDate}_to_${endDate}_${timestamp}.csv`;
-                
-                updateProgress(90, 'Creating CSV file...');
-                exportToCSV(transformedData, filename);
-                
-                updateProgress(100, 'Download complete!');
-                showStatus(`✅ Successfully downloaded ${orders.length} orders with ${transformedData.length} items!`, 'success');
-                
-                const totalWaybills = transformedData.filter(row => row['Waybill Number'] && row['Waybill Number'] !== '').length;
-                const waybillCoverage = ((totalWaybills / transformedData.length) * 100).toFixed(1);
-                
-                document.getElementById('totalOrders').textContent = orders.length;
-                document.getElementById('totalItems').textContent = transformedData.length;
-                document.getElementById('itemsWithWaybills').textContent = totalWaybills;
-                document.getElementById('waybillCoverage').textContent = `${waybillCoverage}%`;
-                document.getElementById('fileSize').textContent = `${(filename.length + transformedData.length * 50).toLocaleString()} bytes`;
-                stats.style.display = 'block';
-                
-                downloadBtn.disabled = false;
-                downloadBtn.innerHTML = '📥 Download Orders CSV';
+                showSuccess(`✅ Report generated successfully! Downloaded ${reportData.length} records.`);
                 
             } catch (error) {
-                console.error('Download failed:', error);
-                showStatus(`❌ Download failed: ${error.message}`, 'error');
-                
-                downloadBtn.disabled = false;
-                downloadBtn.innerHTML = '📥 Download Orders CSV';
-                progressContainer.style.display = 'none';
+                console.error('Error:', error);
+                showError('Failed to generate report: ' + error.message);
+            } finally {
+                hideLoading();
             }
         }
-
-        // Event listeners
-        loginBtn.addEventListener('click', authenticateUser);
-        passwordInput.addEventListener('keypress', handleKeyPress);
-        downloadForm.addEventListener('submit', downloadOrders);
-
-        passwordInput.focus();
     </script>
 </body>
 </html>
